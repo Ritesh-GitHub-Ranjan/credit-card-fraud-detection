@@ -1,11 +1,11 @@
-# **Credit Card Fraud Detection**
+# Credit Card Fraud Detection
 
 This project applies **Machine Learning** to detect fraudulent credit card transactions.
 It includes **EDA, preprocessing, imbalance handling, model building, evaluation**, and final insights.
 
 ---
 
-## ** Project Overview**
+## Project Overview
 
 Credit card fraud costs financial institutions millions every year.
 The goal of this project is to:
@@ -20,7 +20,7 @@ The notebook follows a full end-to-end Data Science workflow.
 
 ---
 
-## ** Project Structure**
+## Project Structure
 
 ```
 │── Credit_Card_Fraud_Detection_CapStone_Project_(1).ipynb
@@ -31,7 +31,7 @@ The notebook follows a full end-to-end Data Science workflow.
 
 ---
 
-## ** Dataset**
+## Dataset
 
 * **Source**: Kaggle Credit Card Fraud Detection Dataset
 * **Rows**: 284,807
@@ -45,15 +45,15 @@ The notebook follows a full end-to-end Data Science workflow.
 
 ---
 
-## ** Steps Performed**
+## Steps Performed
 
-### **1️. Importing Libraries**
+### 1️. Importing Libraries
 
 NumPy, Pandas, Matplotlib, Seaborn, Scikit-learn, XGBoost, etc.
 
 ---
 
-### **2️. Exploratory Data Analysis (EDA)**
+### 2️. Exploratory Data Analysis (EDA)
 
 * Verified **missing values** → none
 * Checked **class imbalance** → extremely imbalanced
@@ -66,7 +66,7 @@ NumPy, Pandas, Matplotlib, Seaborn, Scikit-learn, XGBoost, etc.
 
 ---
 
-### **3️. Data Preprocessing**
+### 3️. Data Preprocessing
 
 Performed:
 
@@ -76,7 +76,7 @@ Performed:
 
 ---
 
-### **4️. Imbalanced Data Handling**
+### 4️. Imbalanced Data Handling
 
 Tested multiple techniques:
 
@@ -87,7 +87,7 @@ Tested multiple techniques:
 
 ---
 
-### **5️. Model Building**
+### 5️. Model Building
 
 Models trained:
 
@@ -102,7 +102,7 @@ Each model had a **dedicated function** for training & evaluation.
 
 ---
 
-### **6️. Evaluation Metrics**
+### 6️. Evaluation Metrics
 
 Evaluated on both Train & Test sets:
 
@@ -116,7 +116,7 @@ Evaluated on both Train & Test sets:
 
 ---
 
-## **7. Final Results (Example)**
+## 7. Final Result
 
 *(Replace with your actual results if needed)*
 
@@ -143,7 +143,7 @@ Evaluated on both Train & Test sets:
 
 ---
 
-## ** Key Insights**
+## Key Insights
 
 * Fraudulent transactions show **distinct patterns** in certain PCA-components.
 * Fraud amounts vary widely, unlike non-fraud amounts which cluster more.
@@ -152,22 +152,22 @@ Evaluated on both Train & Test sets:
 
 ---
 
-## ** Installation & Requirements**
+## Installation & Requirements
 
-### **1. Clone Repository**
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/your-username/fraud-detection
 cd fraud-detection
 ```
 
-### **2. Install Dependencies**
+### 2. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### **3. Run Notebook**
+### 3. Run Notebook
 
 Open Jupyter Notebook:
 
@@ -177,7 +177,7 @@ jupyter notebook
 
 ---
 
-## ** Future Improvements**
+## Future Improvements
 
 * Deploy model via FastAPI / Flask
 * Real-time streaming detection using Kafka
@@ -187,13 +187,13 @@ jupyter notebook
 
 ---
 
-## ** License**
+## License
 
 This project is licensed under the MIT License.
 
 ---
 
-## ** Author**
+## **Author**
 
 **Ritesh Ranjan**
 Data Science & Machine Learning Practitioner
