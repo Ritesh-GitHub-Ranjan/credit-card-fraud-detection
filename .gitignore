@@ -20,3 +20,7 @@ Thumbs.db
 # IDE files
 .vscode/
 .idea/
+
+# Datasets
+data/
+*.csv
