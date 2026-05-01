@@ -1,201 +1,262 @@
-# Credit Card Fraud Detection
+# Credit Card Fraud Detection System
 
-This project applies **Machine Learning** to detect fraudulent credit card transactions.
-It includes **EDA, preprocessing, imbalance handling, model building, evaluation**, and final insights.
+## Overview
 
----
+This repository contains an end-to-end machine learning system for detecting fraudulent credit card transactions. The solution is designed with a production-oriented mindset, focusing on model performance, system reliability, and business impact.
 
-## Project Overview
-
-Credit card fraud costs financial institutions millions every year.
-The goal of this project is to:
-
-* **Analyze** anonymized credit card transaction data
-* **Handle data imbalance** (fraud cases are <1%)
-* **Train multiple ML models** to classify fraud vs. non-fraud
-* **Evaluate models** using business-relevant metrics
-* **Select the best model** based on ROC-AUC, precision, recall & F1-score
-
-The notebook follows a full end-to-end Data Science workflow.
+The system handles extreme class imbalance, captures non-linear transaction behavior, and exposes predictions through a REST API for real-time usage.
 
 ---
 
-## Project Structure
+## Problem Context
 
-```
-│── Credit_Card_Fraud_Detection_CapStone_Project_(1).ipynb
-│── README.md
-└── data/
-    └── creditcard.csv (Not included - Kaggle dataset)
-```
+Credit card fraud detection is a high-stakes classification problem characterized by:
+
+* Severe class imbalance (~0.17% fraud cases)
+* Asymmetric cost of errors
+* Dynamic fraud patterns
+* Need for real-time decisioning
+
+A missed fraudulent transaction results in direct financial loss, whereas excessive false positives degrade customer experience. The system must balance these competing objectives.
+
+---
+
+## Business Objective
+
+The model is optimized for practical deployment in financial systems with the following priorities:
+
+* Maximize fraud detection (high recall) to reduce monetary loss
+* Maintain controlled false positives (precision) to avoid blocking genuine users
+* Enable real-time inference through API integration
+* Ensure reproducibility and scalability
+
+This reflects the trade-off between **risk prevention** and **customer experience**, which is central to fraud systems.
 
 ---
 
 ## Dataset
 
-* **Source**: Kaggle Credit Card Fraud Detection Dataset
-* **Rows**: 284,807
-* **Fraud cases**: 492 (~0.17%)
-* **Features**:
+* Total transactions: 284,807
+* Fraudulent transactions: 492 (~0.172%)
+* Features:
 
-  * PCA-transformed features: V1–V28
-  * `Amount` – transaction amount
-  * `Time` – seconds elapsed
-  * `Class` – **1 = fraud**, **0 = genuine**
+  * V1–V28: PCA-transformed anonymized variables
+  * Amount: Transaction value
+  * Class: Target label (1 = fraud, 0 = non-fraud)
 
----
-
-## Steps Performed
-
-### 1️. Importing Libraries
-
-NumPy, Pandas, Matplotlib, Seaborn, Scikit-learn, XGBoost, etc.
+The dataset is highly anonymized, requiring the model to learn implicit patterns rather than relying on domain-specific features.
 
 ---
 
-### 2️. Exploratory Data Analysis (EDA)
+## Methodology
 
-* Verified **missing values** → none
-* Checked **class imbalance** → extremely imbalanced
-* Visualized:
+### Data Preparation
 
-  * Fraud vs Non-fraud distribution
-  * Time-based fraud patterns
-  * Amount distribution
-  * Correlation heatmaps
+* Removed non-informative features (e.g., Time)
+* Applied StandardScaler on transaction amount
+* Used PowerTransformer to stabilize feature distributions
+* Ensured transformations were fit only on training data to avoid leakage
 
----
+### Handling Class Imbalance
 
-### 3️. Data Preprocessing
+* Applied Random Oversampling on training data only
+* Avoided synthetic sampling during inference to maintain real-world consistency
 
-Performed:
+### Model Selection
 
-* Standard scaling for numerical columns
-* **PowerTransformer** to fix skewness
-* Splitting: **80% train, 20% test**
+Multiple algorithms were evaluated:
 
----
+* Logistic Regression (baseline, interpretable)
+* Random Forest (ensemble, non-linear)
+* XGBoost (boosting-based, high performance)
 
-### 4️. Imbalanced Data Handling
+### Final Model Choice
 
-Tested multiple techniques:
+**XGBoost** was selected due to:
 
-* **Random Under-Sampling**
-* **Random Over-Sampling**
-* **SMOTE**
-* Class-weight adjustments (for models like Logistic Regression)
+* Strong performance on imbalanced data
+* Ability to capture complex non-linear relationships
+* Robust generalization
 
 ---
 
-### 5️. Model Building
+## Model Performance
 
-Models trained:
+* ROC-AUC: ~0.98+
+* High recall ensures most fraudulent transactions are detected
+* Precision controlled to reduce unnecessary intervention
 
-| Model                   | Key Points                               |
-| ----------------------- | ---------------------------------------- |
-| **Logistic Regression** | With L1/L2 penalty, class weights        |
-| **Random Forest**       | Tuned with hyperparameters               |
-| **XGBoost**             | Handling imbalance with scale_pos_weight |
-| (Optional) SVM, KNN     | Based on dataset behavior                |
+### Metric Selection Rationale
 
-Each model had a **dedicated function** for training & evaluation.
+Accuracy is not used as a primary metric due to class imbalance. Instead:
 
----
-
-### 6️. Evaluation Metrics
-
-Evaluated on both Train & Test sets:
-
-* **Accuracy**
-* **Precision (fraud-focused)**
-* **Recall (fraud detection rate)**
-* **F1-Score**
-* **ROC–AUC**
-* **Confusion Matrix**
-* **Custom Probability Threshold Optimization**
+* ROC-AUC → overall separability
+* Recall → fraud detection capability
+* Precision → customer experience impact
 
 ---
 
-## 7. Final Result
+## Threshold Optimization
 
-*(Replace with your actual results if needed)*
+The classification threshold is explicitly tuned instead of using the default 0.5.
 
-| Metric        | Value  |
-| ------------- | ------ |
-| **Accuracy**  | 0.9595 |
-| **Precision** | 0.9554 |
-| **Recall**    | 0.9641 |
-| **F1-Score**  | 0.9597 |
-| **ROC-AUC**   | 0.9949 |
+* Lower threshold → higher recall (detect more fraud)
+* Higher threshold → higher precision (reduce false alarms)
 
-**Confusion Matrix:**
+A threshold of 0.3 is used to balance fraud detection and false positives, aligning with business priorities.
 
-```
-[[1146   54]
- [  43 1157]]
+---
+
+## System Design
+
+The project follows a modular and production-aware architecture:
+
+* Training pipeline separated from inference pipeline
+* Preprocessing artifacts persisted and reused
+* Consistent feature ordering enforced during prediction
+* API layer abstracts model complexity
+
+---
+
+## Architecture Overview
+
+```id="arch001"
+Client Request → FastAPI Endpoint → Preprocessing (Scaler + Transformer)
+              → Model Inference (XGBoost)
+              → Threshold Decision → Response (Prediction + Probability)
 ```
 
-**Interpretation:**
-
-* Model catches most frauds (high recall)
-* Low false positives
-* Excellent separation between classes (AUC ≈ 0.995)
-
 ---
 
-## Key Insights
+## Project Structure
 
-* Fraudulent transactions show **distinct patterns** in certain PCA-components.
-* Fraud amounts vary widely, unlike non-fraud amounts which cluster more.
-* Imbalance handling drastically improves **recall**.
-* Random Forest & Logistic Regression perform exceptionally well.
+```id="struct001"
+credit-card-fraud-detection/
 
----
+├── app.py                     # FastAPI application (serving layer)
+├── requirements.txt          # Dependencies
+├── README.md
+├── .gitignore
 
-## Installation & Requirements
+├── artifacts/                # Serialized objects
+│   ├── model.pkl
+│   ├── scaler.pkl
+│   ├── transformer.pkl
+│   └── columns.pkl
 
-### 1. Clone Repository
+├── src/
+│   ├── train.py              # Training pipeline
+│   ├── predict.py            # Inference logic
 
-```bash
-git clone https://github.com/your-username/fraud-detection
-cd fraud-detection
+└── notebooks/
+    └── fraud_detection_analysis.ipynb   # EDA and experimentation
 ```
 
-### 2. Install Dependencies
+---
 
-```bash
+## API Deployment
+
+### Run Locally
+
+```id="run001"
+git clone https://github.com/Ritesh-GitHub-Ranjan/credit-card-fraud-detection.git
+cd credit-card-fraud-detection
+
+python -m venv venv
+venv\Scripts\activate
+
 pip install -r requirements.txt
+uvicorn app:app --reload
 ```
 
-### 3. Run Notebook
+### Endpoint
 
-Open Jupyter Notebook:
+POST `/predict_fraud`
 
-```bash
-jupyter notebook
+### Request Example
+
+```id="req001"
+{
+  "data": {
+    "V1": -1.359807,
+    "V2": -0.072781,
+    "...": "...",
+    "V28": -0.021053,
+    "Amount": 149.62
+  }
+}
+```
+
+### Response Example
+
+```id="res001"
+{
+  "prediction": 0,
+  "fraud_probability": 0.02
+}
 ```
 
 ---
 
-## Future Improvements
+## Key Design Decisions
 
-* Deploy model via FastAPI / Flask
-* Real-time streaming detection using Kafka
-* Model monitoring & drift detection
-* AutoML-based hyperparameter tuning
-* Feature engineering on Time and Amount
+### Training–Serving Consistency
+
+All preprocessing steps (scaling, transformation) are saved and reused during inference to prevent training-serving skew.
+
+### Artifact Management
+
+Model and preprocessing objects are stored in a dedicated artifacts directory, ensuring portability across environments.
+
+### Feature Alignment
+
+Input data is reindexed to match training feature order, preventing silent errors during prediction.
+
+### Modular Code Structure
+
+Separation of concerns between training, inference, and API layers improves maintainability.
 
 ---
 
-## License
+## Trade-offs and Considerations
 
-This project is licensed under the MIT License.
+* Oversampling improves recall but may introduce noise
+* Lower threshold increases detection but may raise false positives
+* PCA features improve privacy but reduce interpretability
 
 ---
 
-## **Author**
+## Limitations
 
-**Ritesh Ranjan**
-Data Science & Machine Learning Practitioner
+* No real-time streaming pipeline
+* No concept drift handling
+* Limited explainability due to PCA transformation
+* No monitoring or alerting system
+
+---
+
+## Future Work
+
+* Real-time inference using streaming frameworks
+* Model monitoring and drift detection
+* Cost-sensitive learning using financial impact
+* Explainability using SHAP or LIME
+* Containerization and cloud deployment
+
+---
+
+## How to Reproduce
+
+```id="rep001"
+python src/train.py
+python src/predict.py
+```
+
+---
+
+## Author
+
+Ritesh Ranjan
+Data Science and Machine Learning Practitioner
 
 ---
