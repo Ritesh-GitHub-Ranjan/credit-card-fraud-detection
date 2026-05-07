@@ -4,9 +4,9 @@ import os
 import pickle
 import pandas as pd
 
-# =========================
-# Load artifacts (once)
-# =========================
+# ==============
+# Load artifacts
+# ==============
 BASE_DIR = os.path.dirname(__file__)
 ARTIFACTS_DIR = os.path.join(BASE_DIR, "artifacts")
 
